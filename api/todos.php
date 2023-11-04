@@ -1,15 +1,27 @@
 <?php
 include_once __DIR__ . '/../utils/db.php';
-function get_todos() {
-  $db = db_connection();
-  $stmt = $db->prepare('SELECT * FROM todos');
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+include_once __DIR__ . '/../utils/data_classes.php';
 
-$todos = get_todos();
+function get_todos($list_id) {
+  $db = db_connection();
+  $stmt = $db->prepare('SELECT id, title, list_id, completed FROM todos WHERE list_id = :list_id');
+  $stmt->execute([
+    ':list_id' => $list_id,
+  ]);
+  return $stmt->fetchAll(PDO::FETCH_CLASS, 'HxxTodo');
+}
+$list_id = get_key_value('selected_list');
+$todos = get_todos($list_id);
+
+$auto_reload = false;
+
+$trigger = ($auto_reload) ? 'hx-trigger="every 5s" hx-get="/api/todos" hx-swap="outerHTML"' : '';
+
 ?>
-<div id="todos-container">
+<div id="todos-container" <?= $trigger ?> >
+  <?php
+    include __DIR__ . '/list_select.php';
+  ?>
   <h1 class="mb-4">My Todos</h1>
   <ul id="todos" class="list-unstyled">
   <?php
@@ -19,14 +31,17 @@ $todos = get_todos();
   ?>
   </ul>
   <div class="d-flex">
+<!--    <div class="ms-auto">-->
+<!--      <button name="hide-completed" class="btn btn-outline-secondary">Hide Completed</button>-->
+<!--    </div>-->
     <div class="ms-auto">
       <h4 class="me-auto">Add todo</h4>
       <form
-          hx-post="/api/todo.php"
+          hx-post="/api/todo"
           hx-target="#todos"
           hx-swap="beforeend">
-        <input name="title" placeholder="New Todo">
-        <button class="btn ">Add</button>
+        <input title="Todo title" name="title" placeholder="New Todo">
+        <button class="btn">Add</button>
       </form>
     </div>
   </div>

@@ -1,0 +1,16 @@
+{
+  "name": "l-four/htmxx",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "kyah",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "ext-pdo": "*",
+    "ext-pdo_sqlite": "*"
+  }
+}
