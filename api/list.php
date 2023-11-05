@@ -15,7 +15,7 @@ if (!isset($list)) {
     $stmt->execute([
       ':id' => $id,
     ]);
-    return $stmt->fetchObject(PDO::FETCH_CLASS, "HxxList");
+    return $stmt->fetchObject( "HxxList");
   }
   if ($id = entity_get_id()) {
     $list = get_list($id);

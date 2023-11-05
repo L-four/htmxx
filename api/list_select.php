@@ -16,16 +16,18 @@ if (!isset($lists)) {
     return $stmt->fetchAll(PDO::FETCH_CLASS, 'HxxList');
   }
   $lists = get_lists();
-
+  global $state;
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int) $_POST['list'];
     $selected_list = get_list($id);
-    set_key_value('selected_list', $id);
+
+    $state->add('selected_list', $id);
     include __DIR__ . '/todos.php';
     $render = false;
   }
   else {
-    $selected_list = get_list(get_key_value('selected_list'));
+    $selected_id = $state->get('selected_list', 1);
+    $selected_list = get_list($selected_id);
     $render = true;
   }
 }
@@ -36,7 +38,13 @@ else {
 if ($render) {
 ?>
 <form>
-  <select title="Todo lists" name="list" hx-post="/api/list_select" hx-target="#todos-container" hx-swap="outerHTML">
+  <select
+      title="Todo lists"
+      name="list"
+      hx-post="/api/list_select"
+      hx-target="#todos-container"
+      hx-swap="outerHTML"
+  >
     <?php
     foreach ($lists as $list) {
       $selected = $list->id == $selected_list->id;

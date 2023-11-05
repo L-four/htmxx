@@ -68,7 +68,7 @@ if (!isset($todo)) {
       break;
     case "PATCH":
       if ($id = entity_get_id()) {
-        $PATCH = patch_data();
+        $PATCH = form_data();
         $completed = isset($PATCH['completed']) ? $PATCH['completed'] === 'on' : false;
         patch_completed($id, $completed);
       }

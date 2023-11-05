@@ -10,7 +10,8 @@ function get_todos($list_id) {
   ]);
   return $stmt->fetchAll(PDO::FETCH_CLASS, 'HxxTodo');
 }
-$list_id = get_key_value('selected_list');
+global $state;
+$list_id = $state->get('selected_list', 1);
 $todos = get_todos($list_id);
 
 $auto_reload = false;
