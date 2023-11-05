@@ -2,7 +2,7 @@
 
 function request_body() {
   $data = file_get_contents('php://input');
-
+  return $data;
 }
 
 function form_data() {

@@ -4,6 +4,9 @@ define('APP_ROOT', __DIR__);
 define('APP_VERSION', 1);
 
 global $state;
+/** @var PDO $db */
+global $db;
+
 class HxxState {
   const prefix = 's_';
   public $state = [];
@@ -22,7 +25,7 @@ class HxxState {
       }
     }
   }
-  function add($key, $value) {
+  function set($key, $value) {
     $this->state[$key] = $value;
   }
   function get($key, $default = null) {
@@ -37,8 +40,8 @@ class HxxState {
     if (!empty($headers['HX-Current-URL'])) {
       $old_q = parse_url($headers['HX-Current-URL'], PHP_URL_QUERY);
       $old_path = parse_url($headers['HX-Current-URL'], PHP_URL_PATH);
-      parse_str($old_q, $old_q_arr);
       $old_q_arr = [];
+      parse_str($old_q, $old_q_arr);
       $ret = [];
       foreach ($this->state as $key => $value) {
         $ret[self::prefix . $key] = $value;
@@ -61,6 +64,7 @@ $state = new HxxState();
 include_once "utils/db.php";
 include_once "utils/core.php";
 
+$db = db_connection();
 
 //$handler = new HxxSessionHandler();
 //
@@ -69,6 +73,8 @@ include_once "utils/core.php";
 //if (session_status() == PHP_SESSION_NONE) {
 //  session_start();
 //}
+
+ob_start();
 
 switch ($_SERVER['SCRIPT_NAME']) {
   case '/api/list_select':
@@ -90,6 +96,9 @@ switch ($_SERVER['SCRIPT_NAME']) {
 }
 
 $state->render();
+db_close();
+ob_flush();
+
 
 if (php_sapi_name() == 'cli') {
   if ($argc == 2) {

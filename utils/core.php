@@ -4,6 +4,8 @@ include_once 'db.php';
 
 class HxxError {
   const DB_EXISTS = 1;
+  const BAD_INPUT = 2;
+
   public function __construct(public string $message, public int $code) {}
 }
 

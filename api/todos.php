@@ -38,11 +38,17 @@ $trigger = ($auto_reload) ? 'hx-trigger="every 5s" hx-get="/api/todos" hx-swap="
     <div class="ms-auto">
       <h4 class="me-auto">Add todo</h4>
       <form
+          class="d-flex"
           hx-post="/api/todo"
           hx-target="#todos"
           hx-swap="beforeend">
-        <input title="Todo title" name="title" placeholder="New Todo">
-        <button class="btn">Add</button>
+        <input
+            class="form-control"
+            title="Todo title"
+            name="title"
+            placeholder="New Todo"
+        >
+        <button class="btn btn-primary">Add</button>
       </form>
     </div>
   </div>

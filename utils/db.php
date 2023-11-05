@@ -4,9 +4,18 @@ include_once __DIR__ . '/../root.php';
 include_once __DIR__ . '/../utils/core.php';
 
 function db_connection() {
-  $db = new PDO('sqlite:' . APP_ROOT . '/db.sqlite3');
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  return $db;
+  global $db;
+  if (!empty($db)) {
+    return $db;
+  }
+  $db_n = new PDO('sqlite:' . APP_ROOT . '/db.sqlite3');
+  $db_n->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  return $db_n;
+}
+
+function db_close() {
+  global $db;
+  $db = null;
 }
 
 /**

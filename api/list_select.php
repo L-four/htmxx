@@ -20,8 +20,7 @@ if (!isset($lists)) {
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int) $_POST['list'];
     $selected_list = get_list($id);
-
-    $state->add('selected_list', $id);
+    $state->set('selected_list', $id);
     include __DIR__ . '/todos.php';
     $render = false;
   }
@@ -39,6 +38,7 @@ if ($render) {
 ?>
 <form>
   <select
+      class="form-select"
       title="Todo lists"
       name="list"
       hx-post="/api/list_select"

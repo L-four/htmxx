@@ -11,9 +11,12 @@ if (!isset($todo)) {
    * @param $selected_id int
    * @param $completed bool
    *
-   * @return false|string
+   * @return false|string|HxxError
    */
   function create_todo($title, $selected_id, $completed = false) {
+    if (empty($selected_id)) {
+      return new HxxError('No list selected', HxxError::BAD_INPUT);
+    }
     $db = db_connection();
     $stmt = $db->prepare('INSERT INTO todos (title, list_id, completed) VALUES (:title, :list_id, :completed)');
     $stmt->execute([
@@ -24,7 +27,7 @@ if (!isset($todo)) {
     return $db->lastInsertId();
   }
 
-  function get_todo($id) {
+  function get_todo(string $id) {
     $db = db_connection();
     $stmt = $db->prepare('SELECT * FROM todos WHERE id = :id');
     $stmt->execute([
@@ -56,21 +59,49 @@ if (!isset($todo)) {
     ]);
   }
 
+  /**
+   * @param $id
+   * @param $title
+   *
+   * @return void
+   */
+  function patch_title($id, $title) {
+    $db = db_connection();
+    $stmt = $db->prepare('UPDATE todos SET title = :title WHERE id = :id');
+    $stmt->execute([
+      ':id' => $id,
+      ':title' => $title,
+    ]);
+  }
+
   // check method
   switch ($_SERVER['REQUEST_METHOD']) {
     case "POST":
+      global $state;
       $title = (string) $_POST['title'];
       $completed = isset($_POST['completed']) ? (int) $_POST['completed'] : 0;
-      $selected_id = get_key_value('selected_list');
+      $selected_id = $state->get('selected_list', 1);
       $id = create_todo($title, $selected_id, $completed);
-      $todo = get_todo($id);
-      $render = true;
+      if ($id instanceof HxxError) {
+        print $id->message;
+        $render = false;
+      }
+      else {
+        $todo = get_todo($id);
+        $render = TRUE;
+      }
       break;
     case "PATCH":
       if ($id = entity_get_id()) {
         $PATCH = form_data();
-        $completed = isset($PATCH['completed']) ? $PATCH['completed'] === 'on' : false;
-        patch_completed($id, $completed);
+        if (isset($PATCH['completed'])) {
+          $completed = $PATCH['completed'] === 'on';
+          patch_completed($id, $completed);
+        }
+        if (isset($PATCH['title'])) {
+          $title = $PATCH['title'];
+          patch_title($id, $title);
+        }
       }
       break;
     case "DELETE":
@@ -95,16 +126,23 @@ if ($render) {
 <li class="todo">
   <form class="d-flex mb-3">
     <input
-        class="form-check-input"
+        class="form-check-input my-auto"
         title="Todo item completed"
-        type="checkbox" name="completed"
+        type="checkbox"
+        name="completed"
         <?php if ($todo->completed) { ?>checked<?php } ?>
         hx-patch="/api/todo?id=<?= $todo->id ?>"
         hx-swap="none"
     >
-    <span class="ps-2">
-      <?php echo $todo->title ?>
-    </span>
+    <input
+        class="mx-5 ps-2 form-control flex-grow-1"
+        title="Todo title"
+        type="text"
+        name="title"
+        hx-patch="/api/todo?id=<?= $todo->id ?>"
+        value="<?= $todo->title ?>"
+        hx-swap="none"
+    />
     <button
         class="btn btn-danger ms-auto p-2"
         hx-target="closest .todo"
