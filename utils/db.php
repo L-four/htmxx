@@ -76,3 +76,25 @@ function populate_seed_data() {
   $seed_data = file_get_contents(__DIR__ . '/seed_data.sql');
   $db->exec($seed_data);
 }
+
+
+function auto_get($class, string $id) {
+  $db = db_connection();
+  $table = $class::_TABLE;
+  $fields = array_keys(get_class_vars($class));
+  $db_columns = implode(', ', $fields);
+  $stmt = $db->prepare('SELECT ' . $db_columns . ' FROM ' . $table. ' WHERE id = :id');
+  $stmt->execute([
+    ':id' => $id,
+  ]);
+  return $stmt->fetchObject($class);
+}
+
+function auto_delete($class, string $id) {
+  $db = db_connection();
+  $table = $class::_TABLE;
+  $stmt = $db->prepare('DELETE FROM ' . $table . ' WHERE id = :id');
+  return $stmt->execute([
+    ':id' => $id,
+  ]);
+}

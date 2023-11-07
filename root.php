@@ -84,7 +84,7 @@ switch ($_SERVER['SCRIPT_NAME']) {
     include_once 'api/list.php';
     break;
   case '/api/todo':
-    include_once 'api/todo.php';
+    include_once 'api/todo_plus.php';
     break;
   case '/api/todos':
     include_once 'api/todos.php';
