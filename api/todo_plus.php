@@ -87,11 +87,11 @@ if (!class_exists('TodoComp')) {
             $id = create_todo($title, $selected_id, $completed);
             if ($id instanceof HxxError) {
               print $id->message;
-              $this->render = FALSE;
+              $this->shouldRender = FALSE;
             }
             else {
               $this->todo = get_todo($id);
-              $this->render = TRUE;
+              $this->shouldRender = TRUE;
             }
             break;
           case "PATCH":
@@ -119,7 +119,7 @@ if (!class_exists('TodoComp')) {
         }
       }
       else {
-        $this->render = TRUE;
+        $this->shouldRender = TRUE;
       }
     }
 
