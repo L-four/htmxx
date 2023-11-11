@@ -76,22 +76,27 @@ $db = db_connection();
 
 ob_start();
 
-switch ($_SERVER['SCRIPT_NAME']) {
+$route = $_SERVER['PATH_INFO'] ?? $_SERVER['SCRIPT_NAME'];
+
+switch ($route) {
   case '/api/list_select':
-    include_once 'api/list_select.php';
+    require_once 'api/list_select.php';
     break;
   case '/api/list':
-    include_once 'api/list.php';
+    require_once 'api/list.php';
     break;
   case '/api/todo':
-    include_once 'api/todo_plus.php';
+    require_once 'api/todo.php';
     break;
   case '/api/todos':
-    include_once 'api/todos.php';
+    require_once 'api/todos.php';
+    break;
+  case '/_opcache':
+    require_once 'opcache.php';
     break;
   case '/':
   default:
-    include_once 'index.php';
+    require_once 'home.php';
     break;
 }
 

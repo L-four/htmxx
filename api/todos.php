@@ -27,7 +27,7 @@ $trigger = ($auto_reload) ? 'hx-trigger="every 5s" hx-get="/api/todos" hx-swap="
   <ul id="todos" class="list-unstyled">
   <?php
     foreach ($todos as $todo) {
-      include __DIR__ . '/todo_plus.php';
+      include __DIR__ . '/todo.php';
     }
   ?>
   </ul>

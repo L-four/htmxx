@@ -2,6 +2,17 @@
 
 include_once 'db.php';
 
+/**
+ * @property bool $shouldRender;
+ */
+interface Component {
+
+  public function update();
+
+  public function render();
+
+}
+
 class HxxError {
   const DB_EXISTS = 1;
   const BAD_INPUT = 2;
