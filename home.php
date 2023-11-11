@@ -10,7 +10,15 @@
   </head>
   <body class="py-4">
     <div class="container" hx-include="#state input">
-      <?php include 'api/todos.php'; ?>
+      <?php
+        $todosComp = new TodosComp();
+        $todosComp->update();
+        $todosComp->render();
+      ?>
     </div>
+    <?php
+      global $state;
+      $state->render();
+    ?>
   </body>
 </html>

@@ -1,5 +1,8 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 define('APP_ROOT', __DIR__);
 define('APP_VERSION', 1);
 
@@ -10,6 +13,9 @@ global $db;
 class HxxState {
   const prefix = 's_';
   public $state = [];
+
+  public $hasRendered = FALSE;
+
   function __construct() {
     foreach ($_GET as $key => $value) {
       if (strpos($key, self::prefix) === 0) {
@@ -40,8 +46,12 @@ class HxxState {
     if (!empty($headers['HX-Current-URL'])) {
       $old_q = parse_url($headers['HX-Current-URL'], PHP_URL_QUERY);
       $old_path = parse_url($headers['HX-Current-URL'], PHP_URL_PATH);
+
       $old_q_arr = [];
-      parse_str($old_q, $old_q_arr);
+      if (!empty($old_q)) {
+        parse_str($old_q, $old_q_arr);
+      }
+
       $ret = [];
       foreach ($this->state as $key => $value) {
         $ret[self::prefix . $key] = $value;
@@ -57,12 +67,12 @@ class HxxState {
       echo '<input class="state" name="' . self::prefix . $key . '" value="' . $value . '"/>';
     }
     echo '</div>';
+    $this->hasRendered = TRUE;
   }
 }
 $state = new HxxState();
 
-include_once "utils/db.php";
-include_once "utils/core.php";
+include_once "includes.php";
 
 $db = db_connection();
 
@@ -80,16 +90,32 @@ $route = $_SERVER['PATH_INFO'] ?? $_SERVER['SCRIPT_NAME'];
 
 switch ($route) {
   case '/api/list_select':
-    require_once 'api/list_select.php';
+    $listSelectComp = new ListSelectComp(rootComponent: TRUE);
+    $listSelectComp->update();
+    if ($listSelectComp->shouldRender) {
+      $listSelectComp->render();
+    }
     break;
   case '/api/list':
-    require_once 'api/list.php';
+    $comp = new ListComp();
+    $comp->update();
+    if ($comp->shouldRender) {
+      $comp->render();
+    }
     break;
   case '/api/todo':
-    require_once 'api/todo.php';
+    $comp = new TodoComp();
+    $comp->update();
+    if ($comp->shouldRender) {
+      $comp->render();
+    }
     break;
   case '/api/todos':
-    require_once 'api/todos.php';
+    $comp = new TodosComp();
+    $comp->update();
+    if ($comp->shouldRender) {
+      $comp->render();
+    }
     break;
   case '/_opcache':
     require_once 'opcache.php';
@@ -100,7 +126,9 @@ switch ($route) {
     break;
 }
 
-$state->render();
+if (!$state->hasRendered) {
+  $state->render();
+}
 db_close();
 ob_flush();
 

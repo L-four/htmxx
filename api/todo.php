@@ -69,7 +69,7 @@ if (!class_exists('TodoComp')) {
 
     public $shouldRender = FALSE;
 
-    public function __construct(public HxxTodo|null $todo) {
+    public function __construct(public HxxTodo|null $todo = NULL) {
       if (!is_null($todo)) {
         $this->shouldRender = TRUE;
       }
@@ -128,10 +128,4 @@ if (!class_exists('TodoComp')) {
       include __DIR__ . '/todo.tpl.php';
     }
   }
-}
-
-$comp = new TodoComp($todo ?? NULL);
-$comp->update();
-if ($comp->shouldRender) {
-  $comp->render();
 }

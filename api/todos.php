@@ -10,46 +10,28 @@ function get_todos($list_id) {
   ]);
   return $stmt->fetchAll(PDO::FETCH_CLASS, 'HxxTodo');
 }
-global $state;
-$list_id = $state->get('selected_list', 1);
-$todos = get_todos($list_id);
 
-$auto_reload = false;
+class TodosComp implements Component {
+  public $shouldRender = FALSE;
+  public $trigger = NULL;
 
-$trigger = ($auto_reload) ? 'hx-trigger="every 5s" hx-get="/api/todos" hx-swap="outerHTML"' : '';
+  public function __construct(public \HxxList|NULL $selected_list=NULL) {}
 
-?>
-<div id="todos-container" <?= $trigger ?> >
-  <?php
-    include __DIR__ . '/list_select.php';
-  ?>
-  <h1 class="mb-4">My Todos</h1>
-  <ul id="todos" class="list-unstyled">
-  <?php
-    foreach ($todos as $todo) {
-      include __DIR__ . '/todo.php';
+  public function update() {
+    if (is_null($this->selected_list)) {
+      global $state;
+      $list_id = $state->get('selected_list', 1);
+      $this->selected_list = get_list($list_id);
     }
-  ?>
-  </ul>
-  <div class="d-flex">
-<!--    <div class="ms-auto">-->
-<!--      <button name="hide-completed" class="btn btn-outline-secondary">Hide Completed</button>-->
-<!--    </div>-->
-    <div class="ms-auto">
-      <h4 class="me-auto">Add todo</h4>
-      <form
-          class="d-flex"
-          hx-post="/api/todo"
-          hx-target="#todos"
-          hx-swap="beforeend">
-        <input
-            class="form-control"
-            title="Todo title"
-            name="title"
-            placeholder="New Todo"
-        >
-        <button class="btn btn-primary">Add</button>
-      </form>
-    </div>
-  </div>
-</div>
+    $this->todos = get_todos($this->selected_list->id);
+    $auto_reload = false;
+    $this->trigger = ($auto_reload) ? 'hx-trigger="every 5s" hx-get="/api/todos" hx-swap="outerHTML"' : '';
+  }
+
+  public function render() {
+    $todos = $this->todos;
+    $trigger = $this->trigger;
+    $selected_list = $this->selected_list;
+    require __DIR__ . '/todos.tpl.php';
+  }
+}
